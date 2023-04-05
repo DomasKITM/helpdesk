@@ -59,6 +59,14 @@ public class DashboardController {
     private ObservableList<ObservableList> data = FXCollections.observableArrayList();
     // Jei nerodo ikonėlių prie FXML elementų patikrinti ar FXML'e yra nurodytas kontroleris
 
+    public void initialize() {
+        try {
+            this.updateTableFromDB("");
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
     /**
      * Funkcija grąžinantį vartotoją į login langą
      */
@@ -140,13 +148,14 @@ public class DashboardController {
             RequestFormDAO.create(new RequestForm(requestType, email, title, description, isPictureIncluded, interests));
             this.message.setTextFill(Color.GREEN);
             this.message.setText("Successfully added new entry to database");
+
+            this.updateTableFromDB("");
         } catch (SQLException throwables) {
             this.message.setText("Failed to add an entry to database");
         }
     }
 
     public void onActionEdit(ActionEvent actionEvent) {
-
         int id = 0;
         if (Validation.isIdValid(this.id.getText())) {
             id = Integer.parseInt(this.id.getText());
@@ -220,6 +229,8 @@ public class DashboardController {
             RequestFormDAO.update(new RequestForm(id, requestType, email, title, description, isPictureIncluded, interests));
             this.message.setTextFill(Color.GREEN);
             this.message.setText("Successfully updated entry");
+
+            this.updateTableFromDB("");
         } catch (SQLException throwables) {
             this.message.setText("Failed to update entry");
         }
@@ -231,6 +242,8 @@ public class DashboardController {
                 RequestFormDAO.delete(Integer.parseInt(this.id.getText()));
                 this.message.setTextFill(Color.GREEN);
                 this.message.setText("Form deleted successfully");
+
+                this.updateTableFromDB("");
             } catch (SQLException throwables) {
                 this.message.setText("Failed to delete a request");
             }
@@ -242,6 +255,7 @@ public class DashboardController {
     public void onSearchAction(ActionEvent actionEvent) {
         try {
             this.updateTableFromDB(this.title.getText());
+            this.table.setItems(this.data);
         } catch (SQLException throwables) {
             this.message.setText("Search failed");
             throwables.printStackTrace();
@@ -273,6 +287,7 @@ public class DashboardController {
             }
         } catch (SQLException e) {
             this.message.setText("Failure in getting all entries");
+            e.printStackTrace();
         }
     }
 

@@ -45,12 +45,14 @@ public class RequestFormDAO {
     }
 
     public static ResultSet search(String title) throws SQLException {
+        PreparedStatement preparedStatement = null;
         Connection connection = DriverManager.getConnection(URL, prisijungimas[0], prisijungimas[1]);
-        PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM request_form where title LIKE ?");
-        preparedStatement.setString(1, title);
-        ResultSet resultSet = preparedStatement.executeQuery();
-        preparedStatement.close();
-        connection.close();
-        return resultSet;
+        if (title.trim().length() < 1) {
+            preparedStatement = connection.prepareStatement("SELECT * FROM request_form");
+        } else {
+            preparedStatement = connection.prepareStatement("SELECT * FROM request_form where title LIKE ?");
+            preparedStatement.setString(1, String.format("%%%1$s%%", title.trim()));
+        }
+        return preparedStatement.executeQuery();
     }
 }
